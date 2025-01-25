@@ -12,6 +12,7 @@
     # Ignore system files
     .DS_Store
     Thumbs.db
+    /.idea
   ```
 
 ## Frontend
