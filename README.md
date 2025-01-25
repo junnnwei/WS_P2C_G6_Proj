@@ -28,7 +28,7 @@
      ```bash
      python -m venv venv
      > source venv/bin/activate (For MAC OS)
-     > venv /bin/activate (For Windows)
+     > .\venv\Scripts\Activate (For Windows)
      pip install -r requirements.txt
      ```
    - Run the server:
