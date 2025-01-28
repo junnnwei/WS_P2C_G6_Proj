@@ -3,12 +3,12 @@ let analysisMetrics = {
     mouseMovements: 0,
     mouseDistance: 0,
     directionChanges: 0,
-    keyPresses: 0,
-    timeSpent: 0,
+    totalKeyInputs: 0,
+    totalTimeSpentOnPage: 0,
     formId: "",
     fieldInteractions: {},
     userInformation: "",
-    keyPressIntervals: [], // Added key press interval tracking
+    keyPressIntervals: [],
 
     // comment this out first & we'll see if we actually need this; abit too difficult to analyze with ML
     // canvasFingerprint: "";
@@ -27,8 +27,6 @@ let lastMouseX = null;
 let lastMouseY = null;
 let lastDirectionChange = null;
 let totalDistance = 0;
-// let directionChanges = 0;
-// const MAX_DIRECTION_CHANGE_INTERVAL = 500; // 500ms max between direction changes
 const DIRECTION_CHANGE_THRESHOLD = Math.PI / 4; // 45 degrees threshold for significant direction change
 
 document.addEventListener('mousemove', (event) => {
@@ -83,6 +81,12 @@ let fieldFocusTimes = {};
 document.addEventListener('focus', (event) => {
     if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
         const fieldName = event.target.name || event.target.id;
+        const fieldType = event.target.type || 'text'; // Default to 'text' if type is not specified
+
+         // Initialize field interaction if not already done
+        if (!analysisMetrics.fieldInteractions[fieldName]) {
+            analysisMetrics.fieldInteractions[fieldName] = { keyPressCount: 0, timeSpent: 0, inputType: fieldType };
+        }
 
         // Store the timestamp when the field is focused
         fieldFocusTimes[fieldName] = Date.now();
@@ -93,6 +97,7 @@ document.addEventListener('focus', (event) => {
 document.addEventListener('blur', (event) => {
     if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
         const fieldName = event.target.name || event.target.id;
+        const fieldType = event.target.type || 'text'; // Default to 'text' if type is not specified
 
         // Check if the focus time exists for the field
         if (fieldFocusTimes[fieldName]) {
@@ -102,7 +107,7 @@ document.addEventListener('blur', (event) => {
 
             // Update the fieldInteractions with the time spent
             if (!analysisMetrics.fieldInteractions[fieldName]) {
-                analysisMetrics.fieldInteractions[fieldName] = { keyPressCount: 0, timeSpent: 0 };
+                analysisMetrics.fieldInteractions[fieldName] = { keyPressCount: 0, timeSpent: 0, inputType: fieldType};
             }
 
             // Add the time spent to the fieldInteractions
@@ -116,7 +121,7 @@ document.addEventListener('blur', (event) => {
 /** This portion tracks the duration between each key input **/
 // Track key press intervals
 document.addEventListener('keydown', (event) => {
-    analysisMetrics.keyPresses++;
+    analysisMetrics.totalKeyInputs++;
 
     const currentKeyPressTime = Date.now();
     
@@ -154,7 +159,8 @@ window.addEventListener('load', () => {
 // Stop the timer and send data when the form is submitted
 document.addEventListener('submit', (event) => {
     event.preventDefault(); // Prevent form submission for testing
-    analysisMetrics.timeSpent = Math.floor((Date.now() - startTime) / 1000);
+
+    analysisMetrics.totalTimeSpentOnPage = Date.now() - startTime;
 
     // Send the data to the backend
     analysisMetrics.sessionID = sessionID;
