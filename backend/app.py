@@ -30,13 +30,13 @@ def calculateKeystrokeSD(interval_data):
     variance = sum([(x - mean) ** 2 for x in interval_data]) / len(interval_data)
     return math.sqrt(variance)
 
-def recalculateMetrics(data):
+def calc_keystroke_std_dev(data):
     keystroke_intervals = data.get('keyPressIntervals', [])
 
-    std_dev = calculateKeystrokeSD(keystroke_intervals)
-    data['keystroke_sd'] = std_dev
+    keystroke_std_dev = calculateKeystrokeSD(keystroke_intervals)
+    return keystroke_std_dev
     
-#================================================================================================ SPEED==============================================================
+# Mouse: Speed
 def parse_movement_data(movement_data):
     parsed_data = []
     for entry in movement_data:
@@ -73,9 +73,9 @@ def calculate_standard_deviation(speeds):
     variance = sum((speed - mean_speed) ** 2 for speed in speeds) / len(speeds)
     return math.sqrt(variance)
 
-#====================================================================================================================================================================
 
-def append_to_csv(data):
+# Write to CSV for data collection
+def append_to_csv(response):
     # Note: AMEND TO YOUR OWN FILE NAMES TO COLLECT DATA SEPARATELY
     csv_directory = 'data_collection'
     csv_file_path = os.path.join(csv_directory, 'jw_data_collection.csv')
@@ -89,19 +89,19 @@ def append_to_csv(data):
 
     # Prepare the row for CSV by extracting required fields
     row = [
-        data.get('sessionID', ''),
-        data.get('formId', ''),
-        data.get('totalKeyInputs', 0),
-        data.get('totalTimeSpentOnPage', 0),
-        data.get('width', ''),
-        data.get('height', ''),
-        data.get('pixelRatio', ''),
-        data.get('userAgent', ''),
-        data.get('platform', ''),
-        data.get('language', ''),
-        data.get('timezone', ''),
-        data.get('mousespeed_sd', 0),
-        data.get('keystroke_sd', 0),
+        response.get('sessionID', ''),
+        response.get('formId', ''),
+        response.get('totalKeyInputs', 0),
+        response.get('totalTimeSpentOnPage', 0),
+        response.get('browser_width', ''),
+        response.get('browser_height', ''),
+        response.get('pixelRatio', ''),
+        response.get('user_agent', ''),
+        response.get('platform', ''),
+        response.get('language', ''),
+        response.get('timezone', ''),
+        response.get('mousespeed_sd', 0),
+        response.get('keystroke_sd', 0),
     ]
 
     # Check if the file exists
@@ -121,36 +121,39 @@ def append_to_csv(data):
 def analysis_metrics():
     try:
         data = request.get_json()
-        #print("Received metrics:", data)
+        # print("Received metrics:", data)
         
         # Extract movement data
         movement_data = data.get("movementData", [])
         parsed_data = parse_movement_data(movement_data[1:16]) if movement_data else []
         speeds = calculate_speed(parsed_data) if parsed_data else []
         speed_std_dev = calculate_standard_deviation(speeds) if speeds else 0  # Standard deviation
-        
-        recalculateMetrics(data)
+        keystroke_std_dev = calc_keystroke_std_dev(data)
         
         response = {
             "sessionID": data.get("sessionID"),
-            "speeds": speeds,
-            "speedStandardDeviation": speed_std_dev,
-            "totalKeyInput": data.get("totalKeyInputs", 0),
-            "totalTimeSpentOnPage": data.get("totalTimeSpentOnPage", 0),
             "formId": data.get("formId"),
+            "totalKeyInputs": data.get("totalKeyInputs", 0),
+            "totalTimeSpentOnPage": data.get("totalTimeSpentOnPage", 0),
+            "browser_width": data.get("width"),
+            "browser_height": data.get("height"),
+            "pixelRatio": data.get("pixelRatio"),
+            "user_agent": data.get("userAgent"),
+            "platform": data.get("platform"),
+            "language": data.get("language"),
+            "timezone": data.get("timezone"),
             "fieldInteractions": data.get("fieldInteractions",{}),
-            "userInformation": data.get("userInformation"),
+            "speeds": speeds,
             "keyPressIntervals": data.get("keyPressIntervals"),
-            "keystroke_sd": data.get("keystroke_sd", 0)
+            "mousespeed_sd": speed_std_dev,
+            "keystroke_sd": keystroke_std_dev
         }
 
         print("Processed Metrics:", response)
-        return jsonify(response), 200
 
         # Note: ONLY include this line when attempting to collect data (TO BE REMOVED POST-DATA COLLECTION)
-        append_to_csv(data)
-
-        #return jsonify({"status": "success", "message": "Metrics received!"}), 200
+        append_to_csv(response)
+        return jsonify(response), 200
 
     except Exception as e:
         print("Error:", e)
