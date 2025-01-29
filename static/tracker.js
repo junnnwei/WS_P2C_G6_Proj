@@ -8,7 +8,13 @@ let analysisMetrics = {
     totalTimeSpentOnPage: 0,
     formId: "",
     fieldInteractions: {},
-    userInformation: "",
+    width: 0,
+    height: 0,
+    pixelRatio: 0,
+    userAgent: "",
+    platform: "",
+    language: "",
+    timezone: "",
     keyPressIntervals: [],
 };
 
@@ -159,7 +165,16 @@ document.addEventListener('keydown', (event) => {
 let startTime = Date.now();
 window.addEventListener('load', () => {
     analysisMetrics.formId = document.querySelector('form')?.id || "unknown-form";
-    analysisMetrics.userInformation = getUserInformation();
+    analysisMetrics.width = window.innerWidth;
+    analysisMetrics.height = window.innerHeight;
+    analysisMetrics.pixelRatio = window.devicePixelRatio;
+    analysisMetrics.userAgent = navigator.userAgent;
+    analysisMetrics.platform = navigator.platform;
+    analysisMetrics.language = navigator.language;
+
+    const timezoneOffset = new Date().getTimezoneOffset();
+    const timezone = timezoneOffset < 0 ? `GMT+${-timezoneOffset / 60}` : `GMT-${timezoneOffset / 60}`;
+    analysisMetrics.timezone = timezone;
 });
 
 document.addEventListener('submit', (event) => {
@@ -171,22 +186,6 @@ document.addEventListener('submit', (event) => {
     analysisMetrics.sessionID = sessionID;
     sendAnalysisMetrics();
 });
-
-/** Retrieves additional user information **/
-function getUserInformation() {
-    const timezoneOffset = new Date().getTimezoneOffset();
-    const timezone = timezoneOffset < 0 ? `GMT+${-timezoneOffset / 60}` : `GMT-${timezoneOffset / 60}`;
-
-    return [
-        `width:${window.innerWidth}`,
-        `height:${window.innerHeight}`,
-        `pixelRatio:${window.devicePixelRatio}`,
-        `userAgent:${navigator.userAgent}`,
-        `platform:${navigator.platform}`,
-        `language:${navigator.language}`,
-        `timezone:${timezone}`,
-    ].join(';');
-}
 
 /** Sends the data to the backend **/
 function sendAnalysisMetrics() {
