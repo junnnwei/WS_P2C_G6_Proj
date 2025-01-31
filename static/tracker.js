@@ -168,3 +168,17 @@ function sendAnalysisMetrics() {
         .then((data) => console.log("Response from server:", data))
         .catch((error) => console.error("Error:", error));
 }
+
+// Form submission event to clear input fields
+document.addEventListener("submit", (event) => {
+    event.preventDefault(); // Prevent actual form submission
+    event.target.reset(); // Clear input fields and textarea
+    
+    // Reset analysis metrics for new session
+    analysisMetrics.totalKeyInputs = 0;
+    analysisMetrics.keyPressIntervals = [];
+    analysisMetrics.fieldInteractions = {};
+    
+    console.log("Form submitted and inputs cleared.");
+});
+

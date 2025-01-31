@@ -21,6 +21,22 @@ def signup():
 def feedback():
     return render_template('feedback.html')
 
+@app.route('/feedback2')
+def feedback2():
+    return render_template('feedback2.html')
+
+@app.route('/login2')
+def login2():
+    return render_template('login2.html')
+
+@app.route('/payment')
+def payment():
+    return render_template('payment.html')
+
+@app.route('/registration')
+def registration():
+    return render_template('registration.html')
+
 # Backend metric processing
 def calculateKeystrokeSD(interval_data):
     if len(interval_data) == 0:
@@ -78,7 +94,7 @@ def calculate_standard_deviation(speeds):
 def append_to_csv(response):
     # Note: AMEND TO YOUR OWN FILE NAMES TO COLLECT DATA SEPARATELY
     csv_directory = 'data_collection'
-    csv_file_path = os.path.join(csv_directory, 'jw_data_collection.csv')
+    csv_file_path = os.path.join(csv_directory, 'la_data_collection.csv')
 
     # Ensure the directory exists, if not create it
     if not os.path.exists(csv_directory):
