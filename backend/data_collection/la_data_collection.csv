@@ -1,3 +1,4 @@
+sessionID,formId,totalKeyInputs,totalTimeSpentOnPage,browser_width,browser_height,pixel_ratio,user_agent,platform,language,timezone,mousespeed_sd,keystroke_sd
 fqi9102u0,unknown-form,39,18938,1745,835,1.100000023841858,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",Win32,en-US,GMT+8,631.1823043687871,449.5093816713132
 fqi9102u0,unknown-form,79,43306,1745,835,1.100000023841858,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",Win32,en-US,GMT+8,631.1823043687871,1726.2904143017736
 fqi9102u0,unknown-form,119,61226,1745,835,1.100000023841858,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",Win32,en-US,GMT+8,631.1823043687871,1626.9536746349645

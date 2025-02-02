@@ -6,28 +6,16 @@ app = Flask(__name__, static_folder="../static", template_folder="../templates")
 # Allow both localhost and 127.0.0.1 origins
 CORS(app, resources={r"/api/*": {"origins": ["http://127.0.0.1:5000", "http://localhost:5000"]}})
 
-# Login page
 @app.route('/')
-def login():
+def default():
     return render_template('login.html')
-
-# Signup page
-@app.route('/signup')
-def signup():
-    return render_template('signup.html')
-
-# Feedback page
 @app.route('/feedback')
-def feedback():
+def feedback2():
     return render_template('feedback.html')
 
-@app.route('/feedback2')
-def feedback2():
-    return render_template('feedback2.html')
-
-@app.route('/login2')
+@app.route('/login')
 def login2():
-    return render_template('login2.html')
+    return render_template('login.html')
 
 @app.route('/payment')
 def payment():
@@ -94,7 +82,7 @@ def calculate_standard_deviation(speeds):
 def append_to_csv(response):
     # Note: AMEND TO YOUR OWN FILE NAMES TO COLLECT DATA SEPARATELY
     csv_directory = 'data_collection'
-    csv_file_path = os.path.join(csv_directory, 'la_data_collection.csv')
+    csv_file_path = os.path.join(csv_directory, 'jw_data_collection.csv')
 
     # Ensure the directory exists, if not create it
     if not os.path.exists(csv_directory):
