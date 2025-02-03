@@ -107,14 +107,27 @@ document.addEventListener('click', (event) => {
 /** This portion tracks the duration between each key input **/
 let lastKeyPressTime = null;
 
+// Add: Reset time tracking when window out of focus
+window.addEventListener("blur", () => {
+    lastKeyPressTime = null; // Reset key tracking when page loses focus
+});
+
 document.addEventListener('keydown', (event) => {
     analysisMetrics.totalKeyInputs++;
 
     const currentKeyPressTime = Date.now();
 
-    if (lastKeyPressTime !== null) {
+    // if (lastKeyPressTime !== null) {
+    //     const interval = currentKeyPressTime - lastKeyPressTime;
+    //     analysisMetrics.keyPressIntervals.push(interval);
+    // }
+
+    if (lastKeyPressTime === null) {
+        lastKeyPressTime = currentKeyPressTime; // Reset without recording a long interval
+    } else {
         const interval = currentKeyPressTime - lastKeyPressTime;
         analysisMetrics.keyPressIntervals.push(interval);
+        lastKeyPressTime = currentKeyPressTime;
     }
 
     const activeElement = document.activeElement;
@@ -178,6 +191,7 @@ document.addEventListener("submit", (event) => {
     analysisMetrics.totalKeyInputs = 0;
     analysisMetrics.keyPressIntervals = [];
     analysisMetrics.fieldInteractions = {};
+    lastKeyPressTime = null;
     
     console.log("Form submitted and inputs cleared.");
 });
