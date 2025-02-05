@@ -3,6 +3,7 @@ let analysisMetrics = {
     movementData: [], // Tracks mouse movement, clicks, and scroll events
     totalKeyInputs: 0,
     totalTimeSpentOnPage: 0,
+    averageTimePerField: 0,
     formId: "",
     fieldInteractions: {},
     width: 0,
@@ -165,6 +166,15 @@ document.addEventListener('submit', (event) => {
 
     // Send the data to the backend
     analysisMetrics.sessionID = sessionID;
+
+     // Subtract 1 for the submit button
+    const numberOfFields = Object.keys(analysisMetrics.fieldInteractions).length - 1;
+    if (numberOfFields > 0) {
+        analysisMetrics.averageTimePerField = analysisMetrics.totalTimeSpentOnPage / numberOfFields;
+    } else {
+        analysisMetrics.averageTimePerField = 0.0;
+    }
+
     sendAnalysisMetrics();
 });
 
@@ -189,6 +199,7 @@ document.addEventListener("submit", (event) => {
     
     // Reset analysis metrics for new session
     analysisMetrics.totalKeyInputs = 0;
+    averageTimePerField = 0;
     analysisMetrics.keyPressIntervals = [];
     analysisMetrics.fieldInteractions = {};
     lastKeyPressTime = null;

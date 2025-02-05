@@ -82,13 +82,13 @@ def calculate_standard_deviation(speeds):
 def append_to_csv(response):
     # Note: AMEND TO YOUR OWN FILE NAMES TO COLLECT DATA SEPARATELY
     csv_directory = 'data_collection'
-    csv_file_path = os.path.join(csv_directory, 'jw_data_collection.csv')
+    csv_file_path = os.path.join(csv_directory, 'jw_bot_data_collection.csv')
 
     # Ensure the directory exists, if not create it
     if not os.path.exists(csv_directory):
         os.makedirs(csv_directory)
 
-    csv_header = ['sessionID', 'formId', 'totalKeyInputs', 'totalTimeSpentOnPage', 'browser_width', 'browser_height',
+    csv_header = ['sessionID', 'formId', 'totalKeyInputs', 'averageTimePerField', 'totalTimeSpentOnPage', 'browser_width', 'browser_height',
                   'pixel_ratio', 'user_agent', 'platform', 'language', 'timezone', 'mousespeed_sd', 'keystroke_sd']
 
     # Prepare the row for CSV by extracting required fields
@@ -97,6 +97,7 @@ def append_to_csv(response):
         response.get('formId', ''),
         response.get('totalKeyInputs', 0),
         response.get('totalTimeSpentOnPage', 0),
+        response.get('averageTimePerField', 0),
         response.get('browser_width', ''),
         response.get('browser_height', ''),
         response.get('pixelRatio', ''),
@@ -139,6 +140,7 @@ def analysis_metrics():
             "formId": data.get("formId"),
             "totalKeyInputs": data.get("totalKeyInputs", 0),
             "totalTimeSpentOnPage": data.get("totalTimeSpentOnPage", 0),
+            "averageTimePerField": data.get("averageTimePerField", 0),
             "browser_width": data.get("width"),
             "browser_height": data.get("height"),
             "pixelRatio": data.get("pixelRatio"),
