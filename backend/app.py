@@ -88,7 +88,7 @@ def append_to_csv(response):
     if not os.path.exists(csv_directory):
         os.makedirs(csv_directory)
 
-    csv_header = ['sessionID', 'formId', 'totalKeyInputs', 'averageTimePerField', 'totalTimeSpentOnPage', 'browser_width', 'browser_height',
+    csv_header = ['sessionID', 'formId', 'totalKeyInputs', 'totalTimeSpentOnPage', 'averageTimePerField', 'browser_width', 'browser_height',
                   'pixel_ratio', 'user_agent', 'platform', 'language', 'timezone', 'mousespeed_sd', 'keystroke_sd']
 
     # Prepare the row for CSV by extracting required fields
