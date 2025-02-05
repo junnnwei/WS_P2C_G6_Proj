@@ -28,7 +28,7 @@ def registration():
 # Backend metric processing
 def calculateKeystrokeSD(interval_data):
     if len(interval_data) == 0:
-        return 0
+        return 0.0
 
     mean = sum(interval_data) / len(interval_data)
     variance = sum([(x - mean) ** 2 for x in interval_data]) / len(interval_data)
