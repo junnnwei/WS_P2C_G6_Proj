@@ -1,3 +1,5 @@
+from calendar import day_abbr
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -21,10 +23,6 @@ bot_data['label'] = 1
 # print("Bot Data")
 # print(bot_data[['totalTimeSpentOnPage', 'averageTimePerField', 'mousespeed_sd', 'keystroke_sd']].describe())
 
-# Clean up - remove 0.00 keystroke_sd for human - practically impossible
-# print(human_data[human_data['keystroke_sd'] == 0])
-human_data = human_data[(human_data['keystroke_sd'] != 0)]
-
 # Reset index after filtering
 human_data = human_data.reset_index(drop=True)
 # pd.set_option('display.float_format', '{:.2f}'.format)
@@ -32,6 +30,7 @@ human_data = human_data.reset_index(drop=True)
 
 data = pd.concat([human_data, bot_data], ignore_index=True)
 # print(data.head())
+# print(data.columns)
 
 
 # Convert user agent str to labels | identified by keywords
@@ -46,25 +45,29 @@ data['user_agent_label'] = data['user_agent'].apply(classify_user_agent)
 
 # Weights for feature engineering. Adjust if needed
 scaling_factors = {
-    'totalTimeSpentOnPage': 2.0,
-    'averageTimePerField': 3.0,
-    'browser_width': 1.0,
-    'browser_height': 1.0,
-    'mousespeed_sd': 2.5,
-    'keystroke_sd': 3.0
+    'totalTimeSpentOnPage': 0.1,
+    'averageTimePerField': 9.0,
+    # 'user_agent_label': 0.1,      // I'll introduce this at a later timing
+    'browser_width': 0.025,
+    'browser_height': 0.025,
+    'mousespeed_sd': 20.0,
+    'keystroke_sd': 20.0
 }
 
 for feature, factor in scaling_factors.items():
     if feature in data.columns:
         data[feature] *= factor
 
+# Only keep required stuff in df
+columns_to_keep = ['totalKeyInputs', 'totalTimeSpentOnPage', 'averageTimePerField',
+                   'browser_width', 'browser_height', 'mousespeed_sd', 'keystroke_sd', 'label']
+
+
+data = data[columns_to_keep]
 
 # Separate features and labels
 X = data.drop(columns=['label'])
 y = data['label']
-
-# Handle non-numeric columns with one-hot encoding
-X = pd.get_dummies(X)
 
 # Split data into training and validation sets
 X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -92,19 +95,26 @@ print("\nClassification Report:\n", classification_report(y_val, y_pred))
 # Load test dataset
 test_data = pd.read_csv('../ML/datasets/test_dataset.csv')
 
+# Only keep required columns (exclude 'label' from the test data)
+test_data = test_data[columns_to_keep[:-1]]  # Exclude 'label' from the test data
+
 # Apply scaling factors to the test data (same as training data scaling)
 for feature, factor in scaling_factors.items():
     if feature in test_data.columns:
         test_data[feature] *= factor
-
-# Handle non-numeric columns with one-hot encoding (same as training data)
-test_data = pd.get_dummies(test_data)
 
 # Reindex test data columns to match training data columns
 test_data = test_data.reindex(columns=X.columns, fill_value=0)
 
 # Predict on test data
 test_predictions_proba = rf_model.predict_proba(test_data)[:, 1]  # Probability of being a bot
+
+# View importance of each feature
+feature_importances = pd.DataFrame(rf_model.feature_importances_,
+                                   index=X_train.columns,
+                                   columns=["Importance"]).sort_values("Importance", ascending=False)
+
+print(feature_importances)
 
 # Save prediction results
 output = pd.DataFrame({'Bot_Probability': test_predictions_proba})
