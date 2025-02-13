@@ -204,8 +204,7 @@ document.addEventListener("submit", (event) => {
     analysisMetrics.fieldInteractions = {};
     lastKeyPressTime = null;
     analysisMetrics.movementData = [];
-
-    window.location.reload();
+    
     console.log("Form submitted and inputs cleared.");
 });
 

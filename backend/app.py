@@ -84,6 +84,7 @@ def append_to_csv(response):
     csv_directory = 'data_collection'
     csv_file_path = os.path.join(csv_directory, 'jw_bot_data_collection.csv')
 
+
     # Ensure the directory exists, if not create it
     if not os.path.exists(csv_directory):
         os.makedirs(csv_directory)
