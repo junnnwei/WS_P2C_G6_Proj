@@ -33,17 +33,31 @@ human_data = human_data.reset_index(drop=True)
 data = pd.concat([human_data, bot_data], ignore_index=True)
 # print(data.head())
 
+
+# Convert user agent str to labels | identified by keywords
+def classify_user_agent(user_agent):
+    user_agent = user_agent.lower()
+    bot_keywords = ['bot', 'spider', 'slurp', 'crawler', 'agent']
+    if any(keyword in user_agent for keyword in bot_keywords):
+        return 1
+    return 0
+
+data['user_agent_label'] = data['user_agent'].apply(classify_user_agent)
+
 # Weights for feature engineering. Adjust if needed
 scaling_factors = {
-    'totalTimeSpentOnPage': 10.0,
-    'averageTimePerField': 10.0,
-    'mousespeed_sd': 3.5,
-    'keystroke_sd': 15.0
+    'totalTimeSpentOnPage': 2.0,
+    'averageTimePerField': 3.0,
+    'browser_width': 1.0,
+    'browser_height': 1.0,
+    'mousespeed_sd': 2.5,
+    'keystroke_sd': 3.0
 }
 
 for feature, factor in scaling_factors.items():
     if feature in data.columns:
         data[feature] *= factor
+
 
 # Separate features and labels
 X = data.drop(columns=['label'])
@@ -78,7 +92,15 @@ print("\nClassification Report:\n", classification_report(y_val, y_pred))
 # Load test dataset
 test_data = pd.read_csv('../ML/datasets/test_dataset.csv')
 
-# Add missing columns as zeros and drop extra columns
+# Apply scaling factors to the test data (same as training data scaling)
+for feature, factor in scaling_factors.items():
+    if feature in test_data.columns:
+        test_data[feature] *= factor
+
+# Handle non-numeric columns with one-hot encoding (same as training data)
+test_data = pd.get_dummies(test_data)
+
+# Reindex test data columns to match training data columns
 test_data = test_data.reindex(columns=X.columns, fill_value=0)
 
 # Predict on test data
