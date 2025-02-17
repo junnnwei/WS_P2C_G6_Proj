@@ -188,8 +188,22 @@ function sendAnalysisMetrics() {
         body: JSON.stringify(analysisMetrics),
     })
         .then((response) => response.json())
-        .then((data) => console.log("Response from server:", data))
+        .then((data) => {console.log("Response from server:", data)
+
+            let userMetrics = {
+                totalTimeSpentOnPage: analysisMetrics.totalTimeSpentOnPage,
+                averageTimePerField: analysisMetrics.averageTimePerField,
+                mousespeed_sd: data.mousespeed_sd,
+                keystroke_sd: data.keystroke_sd,
+                user_agent: navigator.userAgent
+            };
+            // Dispatch event to send user data to the recaptcha.js for detection and other shit
+            document.dispatchEvent(new CustomEvent('analysisMetricsReceived', { detail: userMetrics }));
+        })
         .catch((error) => console.error("Error:", error));
+
+    // send information to bot detection 
+    
 }
 
 // Form submission event to clear input fields

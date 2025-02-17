@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, f1_score
+import joblib
 
 # Load datasets
 human_data = pd.read_csv('../ML/datasets/human_training_dataset_synthetic.csv')
@@ -72,6 +73,13 @@ X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_st
 rf_model = RandomForestClassifier(n_estimators=300, max_depth=20, random_state=42, class_weight='balanced')
 rf_model.fit(X_train, y_train)
 
+
+# ============================SAVE MODEL============================
+joblib.dump(rf_model, '../ML/Model/detection_model.pkl')
+print("Model saved to detection_model.pkl.")
+# ============================SAVE MODEL============================
+
+
 # Evaluate model
 y_pred = rf_model.predict(X_val)
 y_pred_proba = rf_model.predict_proba(X_val)[:, 1]
@@ -121,3 +129,26 @@ print(feature_importances)
 output = pd.DataFrame({'Bot_Probability': test_predictions_proba})
 output.to_csv('../ML/datasets/ML_predictions.csv', index=False)
 print("Predictions saved to ML_predictions.csv.")
+
+
+# detect if a user is a bot or not Function
+def predictBot(userData):
+    model = joblib.load('../ML/Model/detection_model.pkl')
+    
+    # Convert user agent str to labels | identified by keywords
+    user_df = pd.DataFrame([userData])
+    user_df['user_agent_label'] = classify_user_agent(userData['user_agent'])
+    
+    for feature, factor in scaling_factors.items():
+        if feature in user_df.columns:
+            user_df[feature] *= factor
+            
+    user_df = user_df.reindex(columns=X.columns, fill_value=0)
+    
+    bot_Prediction = model.predict_proba(user_df)[:, 1][0]
+    
+    
+    if user_df['user_agent_label'][0] == 1:
+        bot_Prediction = 1.0
+        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+bot_Prediction)
+    return round(bot_Prediction * 100)

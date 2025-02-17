@@ -1,6 +1,18 @@
+import sys
+import os
+
+# Append only if not already in sys.path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS  # Import CORS
+
+from ML.ML_training import predictBot
 import math, csv, json, os
+
 app = Flask(__name__, static_folder="../static", template_folder="../templates")
 
 # Allow both localhost and 127.0.0.1 origins
@@ -24,6 +36,29 @@ def payment():
 @app.route('/registration')
 def registration():
     return render_template('registration.html')
+
+@app.route("/model")
+def model_page():
+    return render_template("model.html") 
+
+@app.route('/api/detect_bot', methods=['POST'])
+def detect_bot():
+    user_data = request.get_json()
+    bot_probability = predictBot(user_data)
+    
+    if bot_probability < 30:
+        captcha_level = "none"
+    elif 30 <= bot_probability < 60:
+        captcha_level = "easy"
+    elif 60 <= bot_probability < 90:
+        captcha_level = "medium"
+    else:
+        captcha_level = "hard"
+
+    return jsonify({
+        "bot_probability": bot_probability,
+        "captcha_level": captcha_level
+    })
 
 # Backend metric processing
 def calculateKeystrokeSD(interval_data):
