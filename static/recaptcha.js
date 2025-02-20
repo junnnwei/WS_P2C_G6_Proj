@@ -1,10 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
-    console.log("JavaScript Loaded!"); // Debugging
-
-    let testButton = document.getElementById("test-captcha-btn");
-    let modal = document.getElementById("recaptcha-modal");
-    let overlay = document.getElementById("overlay");
-});
+window.captchaPassed = false;
 
 document.addEventListener("analysisMetricsReceived", function(event) {
     const analysisData = event.detail;
@@ -37,6 +31,7 @@ document.addEventListener("analysisMetricsReceived", function(event) {
             })
             .then(html => {
                 document.getElementById("captcha-container").innerHTML = html;
+                executeCaptchaScript(data.captcha_level);
             })
             .catch(error => console.error("❌ Error in loading CAPTCHA template:", error));
         
@@ -65,3 +60,64 @@ document.addEventListener("DOMContentLoaded", function() {
         console.error("❌ Close button not found!");
     }
 });
+
+
+function executeCaptchaScript(level) {
+    if (level === "easy") {
+        generateMathCaptcha();
+    }
+}
+
+/** ✅ Math CAPTCHA Logic */
+function generateMathCaptcha() {
+    let num1 = Math.floor(Math.random() * 10);
+    let num2 = Math.floor(Math.random() * 10);
+    document.getElementById("math-problem").textContent = `${num1} + ${num2} = ?`;
+    window.mathCaptchaAnswer = num1 + num2;
+    
+}
+
+function checkMathCaptcha() {
+    let userAnswer = parseInt(document.getElementById("math-answer").value);
+    if (userAnswer === window.mathCaptchaAnswer) {
+        alert("Correct! Submitting form...");
+        window.captchaPassed = true;
+        closeRecaptchaModal();
+        //document.getElementById("login-form").submit();
+    } else {
+        alert("❌ Incorrect! Try again.");
+        //window.captchaPassed = false;
+    }
+}
+
+function checkImageCaptcha() {
+    let userAnswer = document.getElementById("image-answer")?.value.trim().toLowerCase();
+    let correctAnswer = "wing keong"
+    if (userAnswer === correctAnswer) {
+        alert("Correct! Submitting form...");
+        window.captchaPassed = true;
+        closeRecaptchaModal();
+        //document.getElementById("login-form").submit();
+    } else {
+        alert("Incorrect! Try again.");
+        //window.captchaPassed = false;
+    }
+}
+function checkTextCaptcha(isCorrect) {
+    // ✅ Prevent multiple button clicks from interfering
+    document.querySelectorAll("button[onclick^='checkTextCaptcha']").forEach(btn => btn.disabled = true);
+
+    if (isCorrect) {
+        alert("Correct! Submitting form...");
+        window.captchaPassed = true;
+        closeRecaptchaModal();
+
+    } else {
+        alert("Incorrect! Try again.");
+        
+        //Re-enable buttons after incorrect attempt
+        document.querySelectorAll("button[onclick^='checkTextCaptcha']").forEach(btn => btn.disabled = false);
+    }
+}
+
+

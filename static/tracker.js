@@ -209,16 +209,23 @@ function sendAnalysisMetrics() {
 // Form submission event to clear input fields
 document.addEventListener("submit", (event) => {
     event.preventDefault(); // Prevent actual form submission
-    event.target.reset(); // Clear input fields and textarea
-    
-    // Reset analysis metrics for new session
+    if (window.captchaPassed) {
+        event.target.reset(); // Clear input fields
+        resetAnalysisMetrics(); // Reset bot detection metrics
+        console.log("✅ Form submitted and inputs cleared.");
+    }else{
+        event.target.reset(); // Clear input fields
+        resetAnalysisMetrics(); // Reset bot detection metrics
+        console.log("✅ Form submitted and inputs cleared.");
+    }
+});
+
+function resetAnalysisMetrics() {
     analysisMetrics.totalKeyInputs = 0;
     averageTimePerField = 0;
     analysisMetrics.keyPressIntervals = [];
     analysisMetrics.fieldInteractions = {};
     lastKeyPressTime = null;
     analysisMetrics.movementData = [];
-    
-    console.log("Form submitted and inputs cleared.");
-});
+}
 
