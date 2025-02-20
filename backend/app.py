@@ -7,7 +7,7 @@ if project_root not in sys.path:
     sys.path.append(project_root)
 
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_cors import CORS  # Import CORS
 
 from ML.ML_training import predictBot
@@ -41,17 +41,21 @@ def registration():
 def model_page():
     return render_template("model.html") 
 
+@app.route("/captcha_templates/<filename>")
+def captcha_template(filename):
+    return send_from_directory("/captcha_templates", filename)
+
 @app.route('/api/detect_bot', methods=['POST'])
 def detect_bot():
     user_data = request.get_json()
     bot_probability = predictBot(user_data)
     
     if bot_probability < 30:
-        captcha_level = "none"
-    elif 30 <= bot_probability < 60:
         captcha_level = "easy"
-    elif 60 <= bot_probability < 90:
+    elif 30 <= bot_probability < 60:
         captcha_level = "medium"
+    elif 60 <= bot_probability < 90:
+        captcha_level = "hard"
     else:
         captcha_level = "hard"
 
