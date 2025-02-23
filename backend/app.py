@@ -56,8 +56,8 @@ def detect_bot():
         captcha_level = "medium"
     elif 60 <= bot_probability < 90:
         captcha_level = "hard"
-    else:
-        captcha_level = "hard"
+    elif bot_probability >= 95:
+        captcha_level = "blocked"
 
     return jsonify({
         "bot_probability": bot_probability,
