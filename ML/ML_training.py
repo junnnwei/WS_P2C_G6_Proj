@@ -5,7 +5,7 @@ from sklearn.metrics import classification_report, accuracy_score, precision_sco
 import joblib
 
 # Load datasets
-human_data = pd.read_csv('../ML/datasets/human_training_dataset_synthetic.csv')
+human_data = pd.read_csv('../ML/datasets/human_training_dataset.csv')
 bot_data = pd.read_csv('../ML/datasets/bot_training_dataset.csv')
 
 # Add labels: 0 for humans, 1 for bots
