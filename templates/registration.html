@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="{{ url_for('static', filename='tracker.js') }}"></script>
+    <script src="{{ url_for('static', filename='recaptcha.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modelCSS.css') }}" />
     <title>Registration or Sign Up Form</title>
     <style>
       @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
@@ -129,6 +131,7 @@
       </div>
       <div class="text">
         <h3>Already have an account? <a href="/login">Login now</a></h3>
+        {% include 'model.html' %}
       </div>
     </form>
   </div>

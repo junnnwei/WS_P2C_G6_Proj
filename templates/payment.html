@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="{{ url_for('static', filename='tracker.js') }}"></script>
+    <script src="{{ url_for('static', filename='recaptcha.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modelCSS.css') }}" />
     <title>Payment Page</title>
     <style>
         body {
@@ -77,6 +79,7 @@
                 <input type="text" id="cvv" name="cvv" required maxlength="3">
             </div>
             <button type="submit" class="button">Make Payment</button>
+            {% include 'model.html' %}
         </form>
     </div>
 </body>
