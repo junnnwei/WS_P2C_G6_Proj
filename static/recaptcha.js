@@ -15,13 +15,23 @@ document.addEventListener("analysisMetricsReceived", function(event) {
         console.log("🛡️ CAPTCHA Level:", data.captcha_level);
 
         let captchaContainer = document.getElementById("captcha-container");
-        captchaContainer.innerHTML = ""; // Clear previous CAPTCHA
-        
+
         const level = data.captcha_level; // Get the difficulty level (e.g., "easy")
+
+        if (level === "none") {
+            console.log("✅ No CAPTCHA required.");
+            return; // Skip CAPTCHA rendering
+        }
+
+        if (data.redirect) {
+            window.location.href = data.redirect; // Redirect to the blocked page
+        }
+
+        captchaContainer.innerHTML = ""; // Clear previous CAPTCHA
         const url = `static/captcha_templates/${level}.html`; // Dynamically construct the correct URL
         
         console.log("Fetching CAPTCHA from:", url); // Debugging - Check if URL is correct
-        
+
         fetch(url)
             .then(response => {
                 if (!response.ok) {
@@ -31,7 +41,7 @@ document.addEventListener("analysisMetricsReceived", function(event) {
             })
             .then(html => {
                 document.getElementById("captcha-container").innerHTML = html;
-                executeCaptchaScript(data.captcha_level);
+                executeCaptchaScript(level);
             })
             .catch(error => console.error("❌ Error in loading CAPTCHA template:", error));
         
@@ -39,6 +49,7 @@ document.addEventListener("analysisMetricsReceived", function(event) {
     })
     .catch(error => console.error("❌ Error in reCAPTCHA handling:", error));
 });
+
 
 
 function showRecaptchaModal() {

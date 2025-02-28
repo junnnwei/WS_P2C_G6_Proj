@@ -182,7 +182,7 @@ document.addEventListener('submit', (event) => {
 function sendAnalysisMetrics() {
     console.log("Sending data:", analysisMetrics);
 
-    fetch('http://127.0.0.1:5000/api/analysis-metrics', {
+    fetch('http://35.212.185.236/api/analysis-metrics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(analysisMetrics),

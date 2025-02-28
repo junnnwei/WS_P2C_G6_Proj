@@ -3,10 +3,21 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, f1_score
 import joblib
+import os
+
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+HUMAN_DATASET_PATH = os.path.join(BASE_DIR, "datasets/human_training_dataset_synthetic.csv")
+BOT_DATASET_PATH = os.path.join(BASE_DIR, "datasets/bot_training_dataset.csv")
+
+MODEL_DIR = os.path.join(BASE_DIR, "Model")  # Ensure directory exists
+MODEL_PATH = os.path.join(MODEL_DIR, "detection_model.pkl")
+
+TEST_DATASET_PATH = os.path.join(BASE_DIR, "datasets/test_dataset.csv")
 
 # Load datasets
-human_data = pd.read_csv('../ML/datasets/human_training_dataset_synthetic.csv')
-bot_data = pd.read_csv('../ML/datasets/bot_training_dataset.csv')
+human_data = pd.read_csv(HUMAN_DATASET_PATH)
+bot_data = pd.read_csv(BOT_DATASET_PATH)
 
 # Add labels: 0 for humans, 1 for bots
 human_data['label'] = 0
@@ -75,8 +86,8 @@ rf_model.fit(X_train, y_train)
 
 
 # ============================SAVE MODEL============================
-joblib.dump(rf_model, '../ML/Model/detection_model.pkl')
-print("Model saved to detection_model.pkl.")
+joblib.dump(rf_model, MODEL_PATH)
+print(f"Model saved to {MODEL_PATH}")
 # ============================SAVE MODEL============================
 
 
@@ -97,7 +108,7 @@ print(f"F1 Score: {f1:.2f}")
 print("\nClassification Report:\n", classification_report(y_val, y_pred))
 
 # Load test dataset
-test_data = pd.read_csv('../ML/datasets/test_dataset.csv')
+test_data = pd.read_csv(TEST_DATASET_PATH)
 
 test_data['user_agent_label'] = test_data['user_agent'].apply(classify_user_agent)
 
@@ -126,14 +137,14 @@ feature_importances = pd.DataFrame(rf_model.feature_importances_,
 print(feature_importances)
 
 # Save prediction results
-output = pd.DataFrame({'Bot_Probability': test_predictions_proba})
-output.to_csv('../ML/datasets/ML_predictions.csv', index=False)
-print("Predictions saved to ML_predictions.csv.")
+# output = pd.DataFrame({'Bot_Probability': test_predictions_proba})
+# output.to_csv('../ML/datasets/ML_predictions.csv', index=False)
+# print("Predictions saved to ML_predictions.csv.")
 
 
 # detect if a user is a bot or not Function
 def predictBot(userData):
-    model = joblib.load('../ML/Model/detection_model.pkl')
+    model = joblib.load(MODEL_PATH)
     
     # Convert user agent str to labels | identified by keywords
     user_df = pd.DataFrame([userData])

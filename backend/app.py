@@ -1,5 +1,6 @@
 import sys
 import os
+import datetime
 
 # Append only if not already in sys.path
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -7,16 +8,20 @@ if project_root not in sys.path:
     sys.path.append(project_root)
 
 
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, Response
 from flask_cors import CORS  # Import CORS
 
 from ML.ML_training import predictBot
+# from backend.predictor import predictBot
 import math, csv, json, os
 
 app = Flask(__name__, static_folder="../static", template_folder="../templates")
 
 # Allow both localhost and 127.0.0.1 origins
-CORS(app, resources={r"/api/*": {"origins": ["http://127.0.0.1:5000", "http://localhost:5000"]}})
+CORS(app, resources={r"/api/*": {"origins": ["*"]}})
+
+BLOCKED_IPS_FILE = "blocked_ips.txt"
+LOG_FILE = "logs.log"
 
 @app.route('/')
 def default():
@@ -43,27 +48,84 @@ def model_page():
 
 @app.route("/captcha_templates/<filename>")
 def captcha_template(filename):
-    return send_from_directory("/captcha_templates", filename)
+    return send_from_directory(os.path.join(app.root_path, "captcha_templates"), filename)
 
 @app.route('/api/detect_bot', methods=['POST'])
 def detect_bot():
-    user_data = request.get_json()
-    bot_probability = predictBot(user_data)
+    try:
+        user_data = request.get_json()
+        client_ip = get_client_ip()
+        
+        print("Received user data:", user_data)  # Debug print
+        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAClient IP:", client_ip)  # Debug print
+        log_event("REQUEST", client_ip, f"Received data: {user_data}")  # Log raw request
+        
+        if not user_data:
+            raise ValueError("Invalid JSON payload received")
+
+        if is_ip_blocked(client_ip):
+            log_event("BLOCKED ATTEMPT", client_ip, "Attempted access after being blocked")
+            return jsonify({"redirect": "https://www.youtube.com/watch?v=xvFZjo5PgG0",
+                            "captcha_level": "blocked"}), 200
+            # return jsonify({"error": "Access denied", "message": "Your IP has been blocked"}), 403
+        
+        bot_probability = predictBot(user_data)  # This might be failing
+        print("Predicted bot probability:", bot_probability)  # Debug print
+        log_event("BOT DETECTION", client_ip, f"Bot Probability: {bot_probability}%")  # Log probability
+        if bot_probability < 20:
+            captcha_level = "none"
+        elif 20 <= bot_probability < 30:
+            captcha_level = "easy"
+        elif 30 <= bot_probability < 60:
+            captcha_level = "medium"
+        elif 60 <= bot_probability < 90:
+            captcha_level = "hard"
+        else:
+            captcha_level = "blocked"
+            
+            block_ip(client_ip)  # Block the IP
+            print(f"Blocked IP: {client_ip}")
+            log_event("BLOCKED", client_ip, f"Blocked due to bot probability {bot_probability}%")
+
+        return jsonify({
+            "bot_probability": bot_probability,
+            "captcha_level": captcha_level
+        }), 200
+
+    except Exception as e:
+        print(f"Error in detect_bot: {str(e)}")
+        return jsonify({"error": str(e)}), 500  # Return JSON instead of HTML
+
+# Blocking the user based on the captcha level
+def get_client_ip():
+    """ Retrieve the real IP address from request headers """
+    if request.headers.get('X-Forwarded-For'):
+        return request.headers.get('X-Forwarded-For').split(',')[0].strip()
+    return request.remote_addr
+
+def is_ip_blocked(ip):
+    """ Check if an IP is in the blocked list """
+    if os.path.exists(BLOCKED_IPS_FILE):
+        with open(BLOCKED_IPS_FILE, "r") as f:
+            blocked_ips = f.read().splitlines()
+        return ip in blocked_ips
+    return False
+
+def block_ip(ip):
+    """ Block an IP by adding it to the blocked list """
+    with open(BLOCKED_IPS_FILE, "a") as f:
+        f.write(ip + "\n")
+
+
+def log_event(event_type, ip, details):
+    """ Log all bot detections, requests, and blocked attempts """
+    log_entry = f"[{datetime.datetime.now()}] [{event_type}] IP: {ip} - {details}\n"
+
+    with open(LOG_FILE, "a") as log_file:
+        log_file.write(log_entry)
+
+    print(log_entry.strip())  # Optional: Print logs to console
     
-    if bot_probability < 30:
-        captcha_level = "easy"
-    elif 30 <= bot_probability < 60:
-        captcha_level = "medium"
-    elif 60 <= bot_probability < 90:
-        captcha_level = "hard"
-    elif bot_probability >= 95:
-        captcha_level = "blocked"
-
-    return jsonify({
-        "bot_probability": bot_probability,
-        "captcha_level": captcha_level
-    })
-
 # Backend metric processing
 def calculateKeystrokeSD(interval_data):
     if len(interval_data) == 0:
@@ -206,4 +268,4 @@ def analysis_metrics():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
