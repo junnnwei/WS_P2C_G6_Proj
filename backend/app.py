@@ -8,12 +8,12 @@ if project_root not in sys.path:
     sys.path.append(project_root)
 
 
-from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, Response, abort
-from flask_cors import CORS  # Import CORS
+from flask import Flask, render_template, request, jsonify, send_from_directory, abort
+from flask_cors import CORS
 
 from ML.ML_training import predictBot
 # from backend.predictor import predictBot
-import math, csv, json, os
+import math, csv, os
 
 app = Flask(__name__, static_folder="../static", template_folder="../templates")
 
@@ -63,7 +63,7 @@ def detect_bot():
         client_ip = get_client_ip()
         
         print("Received user data:", user_data)  # Debug print
-        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAClient IP:", client_ip)  # Debug print
+        print("Client IP:", client_ip)  # Debug print
         log_event("REQUEST", client_ip, f"Received data: {user_data}")  # Log raw request
         
         if not user_data:
@@ -71,12 +71,13 @@ def detect_bot():
 
         if is_ip_blocked(client_ip):
             log_event("BLOCKED ATTEMPT", client_ip, "Attempted access after being blocked")
-            return jsonify({"redirect": "https://www.youtube.com/watch?v=xvFZjo5PgG0",
+            return jsonify({"redirect": "",
                             "captcha_level": "blocked"}), 200
             # return jsonify({"error": "Access denied", "message": "Your IP has been blocked"}), 403
         
-        bot_probability = predictBot(user_data)  # This might be failing
-        print("Predicted bot probability:", bot_probability)  # Debug print
+        bot_probability = predictBot(user_data)
+        print("Predicted bot probability:", bot_probability)
+
         log_event("BOT DETECTION", client_ip, f"Bot Probability: {bot_probability}%")  # Log probability
         if bot_probability < 20:
             captcha_level = "none"
@@ -130,7 +131,7 @@ def log_event(event_type, ip, details):
     with open(LOG_FILE, "a") as log_file:
         log_file.write(log_entry)
 
-    print(log_entry.strip())  # Optional: Print logs to console
+    print(log_entry.strip())
     
 # Backend metric processing
 def calculateKeystrokeSD(interval_data):
@@ -186,6 +187,7 @@ def calculate_standard_deviation(speeds):
 
 
 # Write to CSV for data collection
+# TODO: Comment out when no longer required for data collection
 def append_to_csv(response):
     # Note: AMEND TO YOUR OWN FILE NAMES TO COLLECT DATA SEPARATELY
     csv_directory = 'data_collection'
@@ -265,8 +267,8 @@ def analysis_metrics():
 
         print("Processed Metrics:", response)
 
-        # Note: ONLY include this line when attempting to collect data (TO BE REMOVED POST-DATA COLLECTION)
-        append_to_csv(response)
+        # Note: ONLY include this line when attempting to collect data (TO BE REMOVED/COMMENTED POST-DATA COLLECTION)
+        # append_to_csv(response)
         return jsonify(response), 200
 
     except Exception as e:

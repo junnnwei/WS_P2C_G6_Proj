@@ -55,9 +55,9 @@ data['user_agent_label'] = data['user_agent'].apply(classify_user_agent)
 
 # Weights for feature engineering. Adjust if needed
 scaling_factors = {
-    'totalTimeSpentOnPage': 3.25, # 1.0
-    'averageTimePerField': 3.25, # 1.0
-    'mousespeed_sd': 3.0, # 20.0
+    'totalTimeSpentOnPage': 3.25,
+    'averageTimePerField': 3.25,
+    'mousespeed_sd': 3.0,
     'keystroke_sd': 5.0
 }
 
@@ -161,5 +161,5 @@ def predictBot(userData):
     
     if user_df['user_agent_label'][0] == 1:
         bot_Prediction = 1.0
-        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+bot_Prediction)
+        print(bot_Prediction)
     return round(bot_Prediction * 100)

@@ -37,3 +37,8 @@
      cd backend/
      python app.py
      ```
+
+## Deployment to Existing Web Application
+1. Add ```<script src="{{ url_for('static', filename='tracker.js') }}"></script>``` into your existing HTML file
+2. Under tracker.js, amend ```fetch('http://x.x.x.x/api/analysis-metrics'``` to fit your server IP address
+3. Ensure that recaptcha.js and tracker.js are stored in static/ to allow API calling
