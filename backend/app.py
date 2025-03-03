@@ -8,7 +8,7 @@ if project_root not in sys.path:
     sys.path.append(project_root)
 
 
-from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, Response
+from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, Response, abort
 from flask_cors import CORS  # Import CORS
 
 from ML.ML_training import predictBot
@@ -22,6 +22,12 @@ CORS(app, resources={r"/api/*": {"origins": ["*"]}})
 
 BLOCKED_IPS_FILE = "blocked_ips.txt"
 LOG_FILE = "logs.log"
+
+@app.before_request
+def block_on_load():
+    client_ip = get_client_ip()
+    if is_ip_blocked(client_ip):
+        abort(403)
 
 @app.route('/')
 def default():
@@ -74,11 +80,11 @@ def detect_bot():
         log_event("BOT DETECTION", client_ip, f"Bot Probability: {bot_probability}%")  # Log probability
         if bot_probability < 20:
             captcha_level = "none"
-        elif 20 <= bot_probability < 30:
+        elif 20 <= bot_probability < 40:
             captcha_level = "easy"
-        elif 30 <= bot_probability < 60:
+        elif 40 <= bot_probability < 70:
             captcha_level = "medium"
-        elif 60 <= bot_probability < 90:
+        elif 70 <= bot_probability < 90:
             captcha_level = "hard"
         else:
             captcha_level = "blocked"

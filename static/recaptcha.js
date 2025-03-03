@@ -103,7 +103,7 @@ function checkMathCaptcha() {
 
 function checkImageCaptcha() {
     let userAnswer = document.getElementById("image-answer")?.value.trim().toLowerCase();
-    let correctAnswer = "wing keong"
+    let correctAnswer = "ben tan";
     if (userAnswer === correctAnswer) {
         alert("Correct! Submitting form...");
         window.captchaPassed = true;
