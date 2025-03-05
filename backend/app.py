@@ -12,7 +12,6 @@ from flask import Flask, render_template, request, jsonify, send_from_directory,
 from flask_cors import CORS
 
 from ML.ML_training import predictBot
-# from backend.predictor import predictBot
 import math, csv, os
 
 app = Flask(__name__, static_folder="../static", template_folder="../templates")

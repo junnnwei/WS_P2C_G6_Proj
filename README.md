@@ -43,4 +43,4 @@
 2. Under tracker.js, amend ```fetch('http://x.x.x.x/api/analysis-metrics'``` to fit your server IP address
 3. Ensure that recaptcha.js and tracker.js are stored in static/ to allow API calling
 
-**Note to Prof: Hello. We'll be hosting the server specified in the code that is running this solution until next trimester for your grading if you wish you see it!**
+**Note to Prof: Hello. We'll be hosting the server specified in the code that is running this solution until next trimester for your grading if you wish to see it! You can visit it at (http://35.212.185.236/)**

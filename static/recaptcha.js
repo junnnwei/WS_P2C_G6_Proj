@@ -115,7 +115,7 @@ function checkImageCaptcha() {
     }
 }
 function checkTextCaptcha(isCorrect) {
-    // ✅ Prevent multiple button clicks from interfering
+    //Prevent multiple button clicks from interfering
     document.querySelectorAll("button[onclick^='checkTextCaptcha']").forEach(btn => btn.disabled = true);
 
     if (isCorrect) {

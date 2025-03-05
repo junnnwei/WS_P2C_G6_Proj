@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="{{ url_for('static', filename='tracker.js') }}"></script>
+    <script src="{{ url_for('static', filename='recaptcha.js') }}"></script>
     <title>Registration or Sign Up Form</title>
     <style>
       @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
@@ -124,6 +125,7 @@
         <input id="termsandconditions" name="termsandconditions" type="checkbox">
         <h3>I accept all terms & conditions</h3>
       </div>
+      {% include 'model.html' %}
       <div class="input-box button">
         <input id="submit" name="submit" type="Submit" value="Register Now">
       </div>
